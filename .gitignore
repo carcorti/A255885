@@ -7,14 +7,14 @@ __pycache__/
 *.pyc
 *.candidate
 
-# TeX products are regenerated locally; only the source is versioned.
+# TeX intermediates are regenerated locally; the final manuscript PDF is kept.
 *.aux
 *.log
 *.out
 *.toc
 *.pdf
+!paper/A255885.pdf
 
 # Full campaign state is intentionally outside the compact repository.
 run/
 replay/
-

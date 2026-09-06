@@ -14,7 +14,8 @@ EXPECTED = {
     "README.md",
     "data/b255885.txt",
     "data/sparse.txt",
-    "paper/A255885_v3.tex",
+    "paper/A255885.pdf",
+    "paper/A255885.tex",
     "results/minima.tsv",
     "results/results.tsv",
     "src/Makefile",
@@ -45,7 +46,8 @@ FROZEN = {
     "data/b255885.txt": "a448a1ca4466c248fc0a201ae35e2f88452f1109ea1eac0ffe007a6448a1b95b",
     "data/sparse.txt": "98e9753b4126b752be8a35d74f48de43313a3163a026129acbb1b261efffb6a4",
     "validation/certificate.tsv": "cb7f7335bc4e88bf523abdb94e370b845ac47735fb9fdca8eb2b4805412bbd33",
-    "paper/A255885_v3.tex": "748b9d770506e36bff299cb83a3aa702938998c9e3f2e678d70a6d6afc85af48",
+    "paper/A255885.pdf": "72afe2a7c666d61b8025a6f49aea847362b0d0f2dc6d070e5dcfc2ac6b912e89",
+    "paper/A255885.tex": "80bfd0ffbd8f771c4953bbb8de54769e4128403d483b1b172f2a9212e54bcc1f",
     "results/minima.tsv": "24cb0bc314b666ead3fb7ddaf9ea9daff0afcc521a1939c98a588f658351041a",
 }
 
@@ -106,16 +108,17 @@ def main() -> int:
         "cff-version: 1.2.0",
         "type: software",
         'repository-code: "https://github.com/carcorti/A255885"',
-        'version: "v1.0"',
+        'doi: "10.5281/zenodo.22519077"',
+        'version: "v1.0.1"',
         "license: MIT",
     )
     if any(value not in cff for value in required_cff):
         fail("CITATION.cff required metadata mismatch")
-    if cff.count("10.5281/zenodo.xxxxxxxx") != 4:
-        fail("CITATION.cff DOI placeholder count mismatch")
-    paper = (root / "paper/A255885_v3.tex").read_text(encoding="utf-8")
-    if paper.count("10.5281/zenodo.xxxxxxxx") != 1:
-        fail("paper DOI placeholder mismatch")
+    if cff.count("10.5281/zenodo.22519077") != 4:
+        fail("CITATION.cff DOI count mismatch")
+    paper = (root / "paper/A255885.tex").read_text(encoding="utf-8")
+    if paper.count("10.5281/zenodo.22519077") != 1:
+        fail("paper DOI mismatch")
     readme = (root / "README.md").read_text(encoding="utf-8")
     for forbidden in ("\\[", "\\operatorname", "\\varphi", "\\le"):
         if forbidden in readme:
@@ -124,8 +127,10 @@ def main() -> int:
     for name in actual:
         if forbidden_parts.intersection(Path(name).parts):
             fail(f"private or generated path published: {name}")
-    if any(name.endswith(".pdf") for name in actual):
-        fail("PDF must not be present in this raw package")
+    obsolete_doi_sentinel = b"zenodo." + b"x" * 8
+    for name in actual:
+        if obsolete_doi_sentinel in (root / name).read_bytes():
+            fail(f"obsolete Zenodo sentinel remains in final package: {name}")
     print(f"PACKAGE AUDIT PASS: files={len(actual)} bytes={sum((root / name).stat().st_size for name in actual)}")
     return 0
 

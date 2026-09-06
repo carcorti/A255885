@@ -5,6 +5,10 @@ integer base `b >= 2`, let `C(b)` be the number of composite integers `c` with
 `2 <= c < b` and `b^(c-1) == 1 (mod c^2)`. The sequence term `a(n)` is the
 least base for which `C(b) = n`.
 
+This definitive package is release `v1.0.1`. Its public repository is
+`https://github.com/carcorti/A255885`, and its persistent archive DOI is
+`https://doi.org/10.5281/zenodo.22519077`.
+
 The C17/OpenMP program uses an interval-aware inverse root sieve. The
 completed computation covered every base through `B = 2000000000`. A separate
 C17 arithmetic engine recomputed the complete domain with different root
@@ -25,7 +29,7 @@ construction and counter representations.
 ```text
 .gitignore                       generated and local-only exclusions
 README.md                        package overview and commands
-CITATION.cff                     provisional release/citation metadata
+CITATION.cff                     release and citation metadata
 LICENSE                          MIT license
 src/a255885.c                    corrected publication source
 src/Makefile                     frozen production build and test recipe
@@ -44,8 +48,9 @@ validation/manifest.tsv          byte-exact official run manifest
 validation/certificate.tsv       independent minima and witness certificate
 validation/notes.md              evidence scope and size boundary
 validation/summary.md            executed checks and frozen identities
-validation/checksums.sha256      complete public-file checksum inventory
-paper/A255885_v3.tex             provisional monolithic manuscript source
+validation/checksums.sha256      SHA-256 inventory of every other public file
+paper/A255885.tex                monolithic manuscript source
+paper/A255885.pdf                compiled manuscript
 ```
 
 External review files, OEIS editorial material, third-party PDFs, generated
@@ -80,7 +85,7 @@ statements and the mathematical algorithm are unchanged. The byte-exact run
 configuration and manifest retain the historical source hash for provenance.
 The `v6` wording retained in the frozen source and bounded validator denotes
 their internal review lineage; it is distinct from the repository release
-version `v1.0` recorded in `CITATION.cff`.
+version `v1.0.1` recorded in `CITATION.cff`.
 
 ## Quick public validation
 
@@ -154,13 +159,12 @@ with a comment header beginning with `#` and no production metadata.
 254 indices and witness rows (`W`) for each of the 84 newly determined
 indices. Machine-readable elapsed times retain their original precision.
 
-## Paper and citation state
+## Paper and citation
 
-The provisional self-contained manuscript is `paper/A255885_v3.tex`. No PDF
-is included. `CITATION.cff` uses release version `v1.0` and the mandatory draft
-DOI placeholder `10.5281/zenodo.xxxxxxxx`; replace all placeholder occurrences
-together only after Carlo supplies and verifies the official Zenodo concept
-DOI.
+The self-contained manuscript source is `paper/A255885.tex`; its compiled
+counterpart is `paper/A255885.pdf`. `CITATION.cff` records release `v1.0.1`,
+the public repository, and the persistent Zenodo concept DOI
+`10.5281/zenodo.22519077`.
 
 The production source carries the SPDX identifier `MIT`, and the repository
 includes the corresponding license file. The source, manuscript, citation

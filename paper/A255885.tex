@@ -9,6 +9,13 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{url}
 
+\hypersetup{
+  pdftitle={An Extension of OEIS A255885 by an Interval-Aware Inverse Root Sieve},
+  pdfauthor={Carlo Corti},
+  pdfsubject={Certified computational extension of OEIS A255885},
+  pdfkeywords={OEIS A255885, computational number theory, inverse root sieve}
+}
+
 \newtheorem{theorem}{Theorem}
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{lemma}[theorem]{Lemma}
@@ -511,15 +518,13 @@ new computation beyond the reviewed finite domain and the scope of this work.
 
 \section*{Data availability}
 
-A public release package is planned for the project
-repository~\cite{corti-package}.  It is intended to include the frozen C17 production
-source and build instructions, the independent C17/Python validator, the
-contiguous and sparse result files, the witness certificate, validation
-reports, and the manuscript source.  At the time of this manuscript draft,
-the repository and archival DOI are not yet public; the DOI in
-reference~\cite{corti-package} is an explicit placeholder and must be replaced
-by the resolved record before release.  The exact values reported in this
-paper derive from the locally frozen campaign and validation artifacts.
+The public project repository and its synchronized Zenodo archive are listed
+in reference~\cite{corti-package}.  The release contains the frozen C17
+production source and build instructions, the independent C17/Python
+validator, the contiguous and sparse result files, the witness certificate,
+validation reports, and the manuscript source and PDF.  The exact values
+reported in this paper derive from the frozen campaign and validation
+artifacts distributed with that release.
 
 \section*{AI use disclosure}
 
@@ -567,6 +572,8 @@ as well as for the citations and text of this article.
 
 \clearpage
 \begin{thebibliography}{9}
+\sloppy
+\raggedright
 
 \bibitem{agoh-dilcher-skula}
 T.~Agoh, K.~Dilcher, and L.~Skula,
@@ -602,11 +609,10 @@ on May 30, 2016, and Israel's program was contributed on April 20, 2017.
 
 \bibitem{corti-package}
 C.~Corti,
-\emph{Computational artifacts for OEIS A255885}, planned project release,
-2026.
-\url{https://github.com/carcorti/A255885}; archival record planned at
-\url{https://doi.org/10.5281/zenodo.xxxxxxxx} (placeholder; replace with the
-resolved DOI before public release).
+\emph{Computational artifacts for OEIS A255885}, GitHub repository and Zenodo
+archive, 2026.
+\url{https://github.com/carcorti/A255885};
+\url{https://doi.org/10.5281/zenodo.22519077}.
 
 \end{thebibliography}
 

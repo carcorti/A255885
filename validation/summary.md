@@ -1,7 +1,7 @@
 # Validation summary
 
-Date: 2026-09-04  
-Scope: compact raw GitHub package for OEIS A255885
+Date: 2026-09-06  
+Scope: compact final GitHub/Zenodo release package `v1.0.1` for OEIS A255885
 
 ## Frozen identities
 
@@ -17,9 +17,10 @@ Scope: compact raw GitHub package for OEIS A255885
 | `data/b255885.txt` | `a448a1ca4466c248fc0a201ae35e2f88452f1109ea1eac0ffe007a6448a1b95b` |
 | `data/sparse.txt` | `98e9753b4126b752be8a35d74f48de43313a3163a026129acbb1b261efffb6a4` |
 | `validation/certificate.tsv` | `cb7f7335bc4e88bf523abdb94e370b845ac47735fb9fdca8eb2b4805412bbd33` |
-| `paper/A255885_v3.tex` | `748b9d770506e36bff299cb83a3aa702938998c9e3f2e678d70a6d6afc85af48` |
+| `paper/A255885.tex` | `80bfd0ffbd8f771c4953bbb8de54769e4128403d483b1b172f2a9212e54bcc1f` |
+| `paper/A255885.pdf` | `72afe2a7c666d61b8025a6f49aea847362b0d0f2dc6d070e5dcfc2ac6b912e89` |
 
-The complete public-file inventory is in `checksums.sha256`.
+The checksum manifest covers every other public file; it excludes itself.
 
 The official run manifest retains the pre-correction source hash
 `eab592a8c6a3caf75fa868724765800347516b23b65cc843c6d0a82c205aa1a5`.
@@ -52,13 +53,18 @@ the archived full validation status is `FINAL ARITHMETIC VALIDATION PASS`.
 
 ## Packaging verification state
 
-The following checks passed on the compact package assembled on 2026-09-04:
+The following checks passed on the final package assembled on 2026-09-06:
 
 - `sh validation/run.sh quick`: package inventory and checksums, 254-slot data
   reconciliation, 5725 direct witness checks, full bounded production
   regression through `B=2024`, and independent C self-test through `B=2024`.
-- `sh validation/run.sh paper`: two settled `pdflatex -draftmode` passes with
-  no PDF, error, unresolved reference/citation, or box warning.
+- `sh validation/run.sh paper`: two settled `pdflatex -draftmode` passes over
+  the final unversioned source with no error, unresolved reference/citation,
+  or box warning.
+- release PDF: two settled normal `pdflatex` passes produced the 10-page
+  `paper/A255885.pdf`; the final log and rendered-page inspection found no
+  error, warning, unresolved reference/citation, clipped content, overlapping
+  content, or split table.
 - manuscript policy audit: 14/14 gates passed on the exact copied TeX source.
 - `cffconvert --validate -i CITATION.cff`: CFF 1.2.0 schema validation passed.
 - final-empty-record audit: both public data files end in exactly `LF LF`.
@@ -71,21 +77,22 @@ The following checks passed on the compact package assembled on 2026-09-04:
 
 ```text
 QUICK PACKAGE VALIDATION: PASS
-PAPER DRAFTMODE CHECK: PASS
+PAPER SOURCE/PDF CHECK: PASS
 FULL FRONTIER REPLAY: NOT RERUN; ARCHIVED PASS RETAINED
 ```
 
-## Production-code gate at raw-package handoff
+## Production-code gate at final-package handoff
 
 ```text
 whole-trajectory process correctness: PASS
 cross-project genericity: PASS
-external-v1 private hardening: N/A (metadata-only copyright-name correction)
+external-v1 private hardening: N/A (no executable scientific-code change)
 bounded hardening record and cycle limit: PASS (public wrappers tested locally)
 canonical artifact: PASS
 explicit user preferences: PASS
-publication-readiness: FAIL for final release; PASS for Carlo inspection
+publication-readiness: PASS
 manuscript publication-policy audit: PASS
+personal identity integrity: PASS (Carlo Corti)
 validation identity stability: PASS (run and publication hashes separated)
 five-boundary separation: PASS
 sequence-agnostic endpoint discovery: PASS
@@ -97,10 +104,12 @@ external-review attachment budget: N/A
 external-review version lineage: PASS with documented metadata-only correction
 independent-validator reproducibility: PASS, full replay available but not rerun
 qualified OpenMP TSan controls: inherited; not rerun during packaging
-review/run freeze readiness: FIX-FIRST before any new official campaign
-decision: FIX-FIRST before public release; GO for Carlo inspection
+review/run freeze readiness: PASS for publication; any new campaign requires a
+separate authorization and gate
+decision: GO for publication
 ```
 
-Final release remains blocked by the real Zenodo DOI and Carlo's review of this
-raw package. The publication source contains one documented metadata-only
-correction; no executable statement, result, or paper byte was changed.
+The final metadata consistently records the public repository, the persistent
+Zenodo concept DOI `10.5281/zenodo.22519077`, and release `v1.0.1`. The
+scientific code, results, b-file, sparse data, run metadata, and certificate
+remain unchanged from the validated package.

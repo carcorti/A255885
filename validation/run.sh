@@ -32,14 +32,14 @@ paper() {
     }
     trap cleanup_paper EXIT HUP INT TERM
     pdflatex -draftmode -interaction=nonstopmode -halt-on-error \
-        -output-directory="$TMP" "$ROOT/paper/A255885_v3.tex" >/dev/null
+        -output-directory="$TMP" "$ROOT/paper/A255885.tex" >/dev/null
     pdflatex -draftmode -interaction=nonstopmode -halt-on-error \
-        -output-directory="$TMP" "$ROOT/paper/A255885_v3.tex" >/dev/null
-    if grep -E "Warning|undefined|Overfull|Underfull|Error" "$TMP/A255885_v3.log"; then
+        -output-directory="$TMP" "$ROOT/paper/A255885.tex" >/dev/null
+    if grep -E "Warning|undefined|Overfull|Underfull|Error" "$TMP/A255885.log"; then
         echo "PAPER VALIDATION FAIL: log warning or error" >&2
         exit 1
     fi
-    test ! -e "$ROOT/paper/A255885_v3.pdf"
+    test -f "$ROOT/paper/A255885.pdf"
     echo "PAPER DRAFTMODE PASS"
 }
 
@@ -109,4 +109,3 @@ case "$MODE" in
         exit 1
         ;;
 esac
-
