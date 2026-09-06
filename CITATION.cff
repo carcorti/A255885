@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: "If you use this A255885 computation package, please cite it using the metadata below."
+type: software
+title: "A255885: Interval-aware inverse root sieve and certified extension"
+authors:
+  - family-names: Corti
+    given-names: Carlo
+    email: carlo.corti@outlook.com
+repository-code: "https://github.com/carcorti/A255885"
+url: "https://doi.org/10.5281/zenodo.xxxxxxxx"
+doi: "10.5281/zenodo.xxxxxxxx"
+version: "v1.0"
+date-released: 2026-09-06
+license: MIT
+keywords:
+  - OEIS
+  - A255885
+  - computational number theory
+  - modular roots
+  - inverse sieve
+  - Wieferich pseudoprimes
+abstract: >-
+  Reproducibility package for the extension of OEIS A255885 from 24 to 85
+  contiguous terms, with 23 additional exact noncontiguous values and the
+  certified lower bound a(86) > 2000000000. It contains the C17/OpenMP
+  production source, the independent arithmetic validator, compact campaign
+  metadata, exact results, witness certificate, public validation scripts,
+  and the provisional LaTeX manuscript source.
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Corti
+      given-names: Carlo
+      email: carlo.corti@outlook.com
+  title: "An Extension of OEIS A255885 by an Interval-Aware Inverse Root Sieve"
+  year: 2026
+  doi: "10.5281/zenodo.xxxxxxxx"
+  url: "https://doi.org/10.5281/zenodo.xxxxxxxx"

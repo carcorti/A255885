@@ -1,0 +1,613 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\newcommand{\Z}{\mathbb{Z}}
+
+\title{An Extension of OEIS A255885 by an Interval-Aware Inverse Root Sieve}
+\author{Carlo Corti\\
+Independent researcher\\
+\texttt{carlo.corti@outlook.com}}
+\date{September 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+For an integer base $b\geq 2$, let
+\[
+ C(b)=\#\{c:2\leq c<b,\ c\text{ composite},\ b^{c-1}\equiv1\pmod{c^2}\},
+\]
+and let $a(n)$ be the least $b$ for which $C(b)=n$.  This is OEIS
+A255885.  We replace a direct base-by-base search by an inverse sieve over
+composite moduli.  For each $c$ the roots of $x^{c-1}=1\pmod{c^2}$ are
+constructed from prime-power roots and the Chinese remainder theorem.  When
+$c^2$ exceeds the base bound, an interval-aware projection enumerates roots
+modulo a suitably chosen divisor square and certifies the omitted local
+conditions.  A production computation through $b=2{,}000{,}000{,}000$ and an
+independent arithmetic recomputation establish 61 new consecutive terms,
+$a(25)$ through $a(85)$, together with 23 exact nonconsecutive values.  Among
+the 254 inspected indices, 108 are therefore realized (including the 24
+previously known terms), while the remaining 146 have no realizing base
+within the computed frontier.  In particular,
+\[
+ a(85)=1{,}244{,}678{,}401,
+ \qquad a(86)>2{,}000{,}000{,}000.
+\]
+The independent validator compared all $2{,}000{,}000{,}001$ counter cells,
+all 254 result slots (minimum or undefined), and all 5,725 witnesses belonging
+to the 84 newly determined indices.
+\end{abstract}
+
+\noindent\textbf{2020 Mathematics Subject Classification.}
+11A07, 11A51, 11Y16, 11Y55.
+
+\noindent\textbf{Keywords.}
+Fermat pseudoprime; Wieferich congruence; modular roots; inverse sieve;
+Chinese remainder theorem; integer sequence; certified computation.
+
+\section{Introduction}
+
+For each $b\geq2$, define
+\begin{equation}\label{eq:C-definition}
+ C(b)=\#\{c\in\Z:2\leq c<b,\ c\text{ composite},\
+ b^{c-1}\equiv1\pmod{c^2}\}.
+\end{equation}
+OEIS A255885 records
+\begin{equation}\label{eq:a-definition}
+ a(n)=\min\{b\geq2:C(b)=n\}.
+\end{equation}
+The index starts at $n=1$.  Programs that state $c\leq b$ instead of $c<b$
+are equivalent here: if $c=b$ is composite, then $b^{b-1}$ is divisible by
+$b^2$ and therefore cannot be congruent to 1 modulo $b^2$.
+The public entry, created by Felix Fr\"ohlich in 2015 and extended by Chai
+Wah Wu in 2022, contained the 24 values through $a(24)=389377$ when the
+present computation was undertaken~\cite{oeis-a255885}.  The sequence is not
+monotone: for example, the new values include $a(28)=902501$ but
+$a(29)=19601$.
+
+The congruence in~\eqref{eq:C-definition} is expensive to test in the forward
+direction for every pair $(b,c)$.  The decisive change of viewpoint is to fix
+$c$, solve
+\begin{equation}\label{eq:root-congruence}
+ x^{c-1}\equiv1\pmod{c^2},
+\end{equation}
+and increment precisely the bases represented by those roots.  Robert
+Israel's program for OEIS A273785 already used this inverse-modulus principle
+by solving the roots modulo $c^2$ and marking their progressions~\cite{oeis-a273785}.
+The present work adds an interval-aware projection that avoids constructing
+the full root set modulo $c^2$ when $c^2$ is larger than the finite base
+interval.
+
+Agoh, Dilcher, and Skula studied the related Euler--Wieferich congruence
+$b^{\varphi(c)}\equiv1\pmod{c^2}$ and its factorwise $p$-adic
+structure~\cite{agoh-dilcher-skula}.  Since $c-1$ and $\varphi(c)$ are
+different exponents, that congruence does not define A255885.  It is,
+however, a necessary consequence of every incidence counted here and supplies
+a redundant structural consistency check.  Indeed, the defining congruence
+forces every principal-unit component to be trivial, while the remaining
+root order divides the relevant factors $p-1$ and hence divides
+$\varphi(c)$.
+
+This paper gives the root decomposition, proves the completeness of the
+interval-aware sieve, describes the production and validation paths, and
+reports the exact finite results.  The computation was bounded in advance at
+$2\cdot10^9$; no claim is made about the value of $a(86)$ beyond the proved
+lower bound.
+
+\section{Prime-power roots}
+
+Write
+\[
+ c=\prod_{i=1}^s p_i^{e_i},\qquad k=c-1.
+\]
+The primes are ordered $p_1<\cdots<p_s$, and $p^e\Vert c$ means that $p^e$
+divides $c$ but $p^{e+1}$ does not.  We use standard facts about finite unit
+groups, primitive roots, and the Chinese remainder theorem as collected, for
+example, by Cohen~\cite{cohen}.
+Because $\gcd(k,c)=1$, in particular $\gcd(k,p_i)=1$ for every prime divisor
+$p_i$ of $c$.
+
+\begin{lemma}[Local root count]\label{lem:local-roots}
+For an odd prime power $p^e\Vert c$, the congruence
+\[
+ x^k\equiv1\pmod{p^{2e}}
+\]
+has exactly $\gcd(k,p-1)$ solutions.  For $2^e\Vert c$, it has exactly one
+solution, namely $x\equiv1\pmod{2^{2e}}$.
+\end{lemma}
+
+\begin{proof}
+If $p\mid x$, then $x^k\equiv0\pmod p$, so every solution is a unit.
+For odd $p$, the unit group modulo $p^{2e}$ is cyclic of order
+$p^{2e-1}(p-1)$.  The kernel of exponentiation by $k$ therefore has size
+\[
+ \gcd\bigl(k,p^{2e-1}(p-1)\bigr)=\gcd(k,p-1),
+\]
+because $p\nmid k$.  If $p=2$, then $c$ is even and $k=c-1$ is odd.
+Exponentiation by an odd integer is an automorphism of the finite $2$-group
+$(\Z/2^{2e}\Z)^\times$ (equivalently, of
+$C_2\times C_{2^{2e-2}}$ when $e\geq1$), so its kernel is trivial.
+\end{proof}
+
+\begin{corollary}[Global root count]\label{cor:global-count}
+The number of roots of~\eqref{eq:root-congruence} modulo $c^2$ is
+\begin{equation}\label{eq:kernel-count}
+ K(c)=\prod_{\substack{p\mid c\\p\text{ odd}}}\gcd(c-1,p-1).
+\end{equation}
+All roots are obtained uniquely by combining the local roots with the Chinese
+remainder theorem.
+\end{corollary}
+
+The product in~\eqref{eq:kernel-count} cannot in general be replaced by
+$\gcd(c-1,\varphi(c))$.  For instance, $c=15$ has four roots modulo $225$,
+whereas that gcd is two.  This small example is also a useful implementation
+test.
+
+\section{The interval-aware inverse sieve}
+
+Fix a finite base bound $B$.  If $c^2\leq B$, the algorithm enumerates every
+root $r\pmod{c^2}$ and every integer
+\[
+ b=r+t c^2\quad\text{with}\quad c<b\leq B.
+\]
+The difficulty is the much larger set of moduli satisfying $c^2>B$.  Let
+$P(c)=\{p_1^{e_1},\ldots,p_s^{e_s}\}$.  For a subset $S\subseteq P(c)$ set
+\[
+ d(S)=\prod_{p_i^{e_i}\in S}p_i^{e_i},\qquad
+ K_c(S)=\prod_{\substack{p_i^{e_i}\in S\\p_i\text{ odd}}}
+              \gcd(c-1,p_i-1).
+\]
+Thus $K(c)=K_c(P(c))$.
+A subset is admissible when $d(S)^2>B$; at least one exists because the full
+set gives $d(S)=c$.  The production code chooses an admissible subset that
+minimizes $K_c(S)$ and, on a tie, takes the smallest numeric bit mask in the
+increasing-prime order.  This choice affects work only: every admissible
+subset gives the same accepted bases.  Roots are first combined only modulo
+$d(S)^2$.  Since $1\leq b\leq B<d(S)^2$, each retained residue represents at
+most one base in the search interval.
+
+The prime-power factors omitted from $d(S)$ are then checked without constructing
+their roots.  The following criterion is used in the production code.
+
+\begin{proposition}[Exact omitted-factor tests]\label{prop:omitted}
+Let $p^e\Vert c$ be omitted from $d(S)$ and let $k=c-1$.
+
+\begin{enumerate}
+\item If $p$ is odd, then
+\[
+ b^k\equiv1\pmod{p^{2e}}
+\]
+is equivalent to the conjunction
+\begin{equation}\label{eq:odd-cascade}
+ b^{\gcd(k,p-1)}\equiv1\pmod p,
+ \qquad b^{p-1}\equiv1\pmod{p^{2e}}.
+\end{equation}
+\item If $p=2$, then
+\[
+ b^k\equiv1\pmod{2^{2e}}
+ \quad\Longleftrightarrow\quad
+ b\equiv1\pmod{2^{2e}}.
+\]
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+For odd $p$, if $p\mid b$, then both the displayed congruence on the left and
+the first congruence in~\eqref{eq:odd-cascade} fail.  We may therefore assume
+$p\nmid b$.  Let $h=\gcd(k,p-1)$.  Write the unit group as
+\[
+ (\Z/p^{2e}\Z)^\times\simeq\mu_{p-1}\times U_1,
+ \qquad |U_1|=p^{2e-1},
+\]
+and write $b=\omega u$ in its Teichm\"uller and principal-unit components.
+Since $p\nmid k$, exponentiation by $k$ is an automorphism of $U_1$; hence
+$b^k=1$ is equivalent to $u=1$ and $\omega^k=1$.  The first congruence in
+\eqref{eq:odd-cascade} is equivalent to $\omega^h=1$, hence to
+$\omega^k=1$.  The second is equivalent to $u^{p-1}=1$, hence to $u=1$
+because $\gcd(p-1,|U_1|)=1$.  This also proves the converse.  For $p=2$,
+Lemma~\ref{lem:local-roots} gives the unique root.
+\end{proof}
+
+\begin{theorem}[Completeness and uniqueness]\label{thm:sieve}
+For every composite $c<B$, the interval-aware inverse sieve emits each $b$
+satisfying $c<b\leq B$ and $b^{c-1}\equiv1\pmod{c^2}$ exactly once and emits
+no other base.
+\end{theorem}
+
+\begin{proof}
+When $c^2\leq B$, Corollary~\ref{cor:global-count} gives every root modulo
+$c^2$, and distinct root--progression pairs give distinct bases.  Suppose
+$c^2>B$.  Any valid $b$ reduces to a projected root modulo $d(S)^2$; because
+$b\leq B<d(S)^2$, that residue identifies $b$ uniquely.  The projected
+branch retains the representative only when $c<b\leq B$.
+Proposition~\ref{prop:omitted} accepts precisely when every omitted prime-power
+congruence also holds.  The Chinese remainder theorem then shows that the
+accepted $b$ is a full root modulo $c^2$.  Conversely, every full root passes
+all projected and omitted conditions.  The factorization into complete
+prime-power factors and uniqueness of the CRT representation prevent
+duplication.
+\end{proof}
+
+\section{Implementation and finite coverage}
+
+The production implementation is written in C17 with OpenMP.  A smallest
+prime factor table supplies the factorization of every $c<B$ and identifies
+compositeness by table lookup, with no probabilistic primality test.  For an
+odd $p$, the production code constructs a primitive root modulo $p$ from the
+factorization of $p-1$; if necessary it replaces $g$ by $g+p$ to obtain a
+primitive root modulo $p^2$, which then remains primitive at higher powers.
+The local kernel is generated by
+$g^{\varphi(p^{2e})/\gcd(k,p-1)}$; the unique local root at $p=2$ is 1.
+Recursive CRT combination produces the projected or full roots.
+
+The numeric domain is explicit.  The bound, moduli $c$, and smallest-prime-
+factor entries use 32-bit unsigned integers.  Squares and local moduli use
+64-bit unsigned integers.  Products in modular multiplication and CRT use
+\texttt{unsigned \_\_int128} intermediates, followed by checked conversion;
+compile-time assertions and run-time checks reject any admitted bound or
+intermediate that would exceed these domains.
+
+In outline, the production algorithm is:
+\begin{enumerate}
+\item build a 32-bit smallest-prime-factor array through $B-1$;
+\item process each composite $c$ exactly once with dynamic OpenMP scheduling
+      in chunks of 64, factor $c$, and choose the projection subset;
+\item enumerate local roots and combine them by CRT;
+\item if $c^2\leq B$, mark all progressions with $c<b\leq B$; otherwise use
+      the unique projected representative, apply the same range test, and
+      certify every omitted factor with Proposition~\ref{prop:omitted};
+\item merge the private counter arrays and extract the first occurrence of
+      each requested count.
+\end{enumerate}
+This is an output-sensitive exhaustive sieve: its arithmetic work is governed
+by the enumerated projected roots and accepted progression points, while its
+dominant live allocation is stated exactly below.
+
+Each thread owns a \texttt{uint8\_t} array indexed from 0 through $B$ and
+increments with a clamp at 255.  After the OpenMP join, arrays are merged in
+increasing thread order: both byte values are promoted to an unsigned type,
+added, and clamped again at 255.  The per-thread arrays are first merged into
+the current segment delta; that delta is then combined with the active
+checkpoint by the same operation.  Although the official run used one
+computational segment, this is the general persistence path.  Saturating
+addition is associative and
+commutative for the scientific counts, while the fixed merge order also makes
+the file-level result reproducible.  Thus the stored cell is
+$\min(C(b),255)$.  Because the requested indices are
+$1\leq n\leq254$, saturation preserves every relevant equality.  The
+completed run recorded zero saturation events, and the largest observed
+count was 160, so the cap was inactive in this campaign.
+
+The final bound was selected before the official run from the reviewed
+numeric and operational envelope, not from a pattern in the resulting terms.
+The host had 64 GB DDR5 installed RAM.  Immediately before the production invocation, Linux reported
+59,471,964 KiB, or about 56.7 GiB, as available.  Here
+$1\ \mathrm{KiB}=2^{10}$ bytes and $1\ \mathrm{GiB}=2^{30}$ bytes.  The
+operating-system measurement and the allocation projections are stated in
+binary units because they derive from binary byte counts.  After
+complete calibrations at $10^8$ and $5\cdot10^8$, the dominant live-allocation
+formula was
+\[
+ (6+T)(B+1)\ \text{bytes}+64\ \mathrm{MiB},
+\]
+where $T$ is the production thread count.  The coefficient 6 comprises the
+4-byte smallest-prime-factor entry, the 1-byte active checkpoint count, and
+the 1-byte current segment delta for each index; the $T$ term comprises the
+private 1-byte counter arrays, and the final 64 MiB is bounded scratch and
+overhead allowance.  Thus the initial 13--16-thread
+projections at $B=2\cdot10^9$ ranged from about 35.45 to 41.04 GiB.  The final
+five-thread configuration projected 20.55 GiB, consistent with the measured
+peak RSS of about 20.49 GiB.  At $B=4\cdot10^9$, the same 16-thread layout
+would project about 82.02 GiB and exceed the host envelope.  A five-thread
+layout would project about 41.04 GiB and might fit in memory, but that frontier
+had not been calibrated, reviewed, or shown to have a practical elapsed time.
+Accordingly, $B=2\cdot10^9$ was the largest prevalidated frontier with a
+comfortable resource margin; the limit was operational rather than a
+mathematical barrier or a claim that no redesign could go farther.
+
+The run used a single exhaustive modulus segment
+$4\leq c\leq1{,}999{,}999{,}999$ and covered every base
+$2\leq b\leq2{,}000{,}000{,}000$; the allocated counter cells at indices 0
+and 1 were unused.  It processed 1,901,777,711 composite
+moduli, generated 273,026,083,586 projected roots, and performed 628,611,669
+counter increments.  The run environment was 64-bit Linux on an AMD Ryzen 9
+7940HS processor running Linux Mint 22.3, with code compiled by GCC 13.3.0
+and the GNU OpenMP runtime.  The release flags were
+\begin{quote}
+\small\ttfamily
+-std=c17 -Wall -Wextra -Wpedantic -Wshadow -Wconversion\\
+-Wdouble-promotion -Wformat=2 -Werror -fopenmp -O3 -flto\\
+-funroll-loops -fomit-frame-pointer -march=native -mtune=native
+\end{quote}
+The main production invocation took about 916 seconds wall time using five
+OpenMP threads; its kernel phase took about 734 seconds and peak resident memory
+was 21,486,820 KiB.  Initialization, computation, status, and internal
+verification together took about 1,231 seconds; the 916-second production
+invocation is included in this total.  These figures are execution
+measurements, not asymptotic performance claims.
+
+The production verification path fails closed unless the artifact schema and
+checksums are valid, the embedded source and build identities agree with the
+configuration, manifest continuity and the completed frontier are intact, the
+active checkpoint hash and slot agree, and a regenerated result table is
+semantically identical to the stored one.  These are persistence and
+derivation checks; they deliberately do not substitute for the independent
+arithmetic certificate described next.
+
+\section{Independent recomputation and certification}
+
+The independent validator has a separate C17 arithmetic engine and a Python
+certificate layer.  Its C engine builds its own smallest-prime-factor table,
+uses shared exact 32-bit atomic counters instead of thread-local saturating
+bytes, constructs odd local roots by Hensel lifting rather than by the
+production generator, breaks projection ties by larger $d^2$ and then larger
+bit mask rather than by the production rule, and checks omitted
+factors directly with exponent $c-1$.  It then compares every counter cell
+and every result slot against the production result.  The Python layer
+independently factors each witness modulus, recomputes the defining
+congruence, and verifies the necessary but logically redundant
+Euler--Wieferich consistency condition
+\begin{equation}\label{eq:euler-check}
+ b^{\varphi(c)}\equiv1\pmod{c^2}.
+\end{equation}
+
+The final validation recomputed the complete array of
+$2{,}000{,}000{,}001$ counters.  It compared all 254 minimum-or-undefined
+rows, finding zero disagreements in either comparison, and checked all 5,725
+witness rows for the 84 new targets.  Both implementations also reproduced
+the 24 pre-existing OEIS terms exactly.
+The figure 5,725 is also the sum of those 84 newly determined indices, since
+a result at index $n$ has exactly $n$ witnesses.
+
+The independent arithmetic engine used 16 OpenMP threads, took about 426 seconds wall time (about 403 seconds in its arithmetic phase), and reached 17,582,416 KiB peak resident memory.  Its shorter elapsed time than the five-thread production run is attributable principally to the larger thread team, not evidence that its arithmetic backend is intrinsically faster.
+The complete validator runner took about 436 seconds.  Every comparison passed.
+
+This is independent implementation evidence, not a claim of logically
+unrelated mathematics: both programs necessarily use the same prime-power
+decomposition, CRT framework, and inverse-modulus identity.  The different
+root constructors, counter representations, projection choices, and direct
+final congruence checks reduce implementation common-mode risk, while the
+mathematical proofs above carry the completeness claim.
+
+\section{Exact results}
+
+For integer indices, $[u,v]$ denotes the set
+$\{u,u+1,\ldots,v\}$.
+
+\begin{theorem}[Certified finite extension]\label{thm:result}
+For the function in~\eqref{eq:a-definition}, the values $a(25)$ through
+$a(85)$ are those in Table~\ref{tab:contiguous}.  There is no base
+$b\leq2{,}000{,}000{,}000$ with $C(b)=86$; hence
+\[
+ a(86)>2{,}000{,}000{,}000.
+\]
+The additional exact values in Table~\ref{tab:sparse} are also certified.
+For every
+\[
+ n\in\{86,97\}\cup[107,116]\cup[118,128]\cup\{130\}
+       \cup[132,159]\cup[161,254],
+\]
+there is no base $b\leq2{,}000{,}000{,}000$ with $C(b)=n$.
+\end{theorem}
+
+\begin{proof}
+Theorem~\ref{thm:sieve} shows that the production sweep increments exactly
+the counter $C(b)$ for every base in the finite interval.  The exhaustive
+modulus frontier is $B-1$, so no admissible $c<b\leq B$ is omitted.  The
+production array stores $\min(C(b),255)$, and for every target
+$1\leq n\leq254$ the equality $\min(C(b),255)=n$ is equivalent to $C(b)=n$.
+Moreover, the production run recorded zero saturation events and maximum
+count 160, and the exact 32-bit validator confirmed every cell.  Scanning the
+complete counter array therefore yields the stated first occurrences and
+exactly the 146 empty slots listed above.  The independent recomputation and
+witness checks described in the preceding section reproduced every asserted
+row.
+\end{proof}
+
+\begin{table}[tbp]
+\centering
+\caption{The 61 new consecutive terms of A255885.}\label{tab:contiguous}
+\small
+\begin{tabular}{rr@{\qquad}rr@{\qquad}rr}
+\toprule
+$n$ & $a(n)$ & $n$ & $a(n)$ & $n$ & $a(n)$\\
+\midrule
+25&821339&46&12700801&67&7263026\\
+26&762049&47&10285001&68&192099601\\
+27&583201&48&25920001&69&258781249\\
+28&902501&49&22619537&70&476280001\\
+29&19601&50&11995201&71&644764049\\
+30&470449&51&17322499&72&55989361\\
+31&1822501&52&45158401&73&20353276\\
+32&2073601&53&43468489&74&170067682\\
+33&4120901&54&43560001&75&85377601\\
+34&4064257&55&25401601&76&503004501\\
+35&2822401&56&31360001&77&341510401\\
+36&1587601&57&131584501&78&752716801\\
+37&3484801&58&12966724&79&406425601\\
+38&8294401&59&28755649&80&250905601\\
+39&1555849&60&38102401&81&536869376\\
+40&9331201&61&13231349&82&282240001\\
+41&3650401&62&335923201&83&860606209\\
+42&8193151&63&435974401&84&1111320001\\
+43&4762801&64&180633601&85&1244678401\\
+44&16769026&65&120963457&&\\
+45&18289153&66&146821249&&\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Certified exact values beyond the consecutive endpoint.  These rows
+are a support table, not an OEIS b-file.}\label{tab:sparse}
+\small
+\begin{tabular}{rr@{\qquad}rr@{\qquad}rr}
+\toprule
+$n$ & $a(n)$ & $n$ & $a(n)$ & $n$ & $a(n)$\\
+\midrule
+87&452838401&95&1866240001&103&1949771251\\
+88&295293601&96&1124802449&104&881393644\\
+89&146376476&98&457228801&105&514382401\\
+90&189750626&99&416565249&106&553246849\\
+91&524384524&100&1235661076&117&649296649\\
+92&177902243&101&815264351&129&362074049\\
+93&462003751&102&914636449&131&192119201\\
+94&1296672301&&&160&768398401\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The canonical contiguous data file (the standard two-column OEIS term file,
+or \emph{b-file}) therefore has exactly the rows $1\leq n\leq85$.  The 23
+rows of Table~\ref{tab:sparse} remain separate so that gaps are never
+disguised as a contiguous b-file.  Of the 254 inspected slots, 108 are
+populated---the 24 public terms and 84 new values---and the remaining 146 are
+exactly the undefined slots listed in Theorem~\ref{thm:result}.
+
+\section{A finite square-plus-one pattern}
+
+Some minima have a simple source of witnesses.  If $b=m^2+1$ and a composite
+$c$ divides $m$, then $c^2\mid b-1$ and hence
+$b^{c-1}\equiv1\pmod{c^2}$.  Thus every composite divisor of $m$ is counted
+by $C(b)$.
+
+Among the 84 newly certified minima, 31 are of the form $m^2+1$.  For six of
+them---at indices 32, 35, 38, 55, 79, and 85---the complete witness set is
+exactly the set of composite divisors of $m$.  At the endpoint,
+\[
+ a(85)=35280^2+1,
+\]
+and the 85 witnesses are precisely the 85 composite divisors of 35280.  The
+contrast with $a(29)=140^2+1$ is instructive: eight witnesses are forced by
+composite divisors of 140, while 21 further moduli satisfy the congruence.
+These are exact observations about the certified finite data, not an
+asymptotic claim or a conjecture about future minima.
+
+\section{Conclusion}
+
+The inverse-modulus formulation turns the search for A255885 into a complete
+finite sieve.  Prime-power root counts give the exact candidate space, while
+the interval-aware divisor projection controls the large-$c$ regime without
+losing or duplicating solutions.  The exhaustive production computation and
+independent recomputation extend the consecutive sequence from 24 to 85
+terms, certify 23 further isolated indices, and prove the current finite
+endpoint statement $a(86)>2\cdot10^9$.  Determining $a(86)$ itself requires a
+new computation beyond the reviewed finite domain and the scope of this work.
+
+\section*{Data availability}
+
+A public release package is planned for the project
+repository~\cite{corti-package}.  It is intended to include the frozen C17 production
+source and build instructions, the independent C17/Python validator, the
+contiguous and sparse result files, the witness certificate, validation
+reports, and the manuscript source.  At the time of this manuscript draft,
+the repository and archival DOI are not yet public; the DOI in
+reference~\cite{corti-package} is an explicit placeholder and must be replaced
+by the resolved record before release.  The exact values reported in this
+paper derive from the locally frozen campaign and validation artifacts.
+
+\section*{AI use disclosure}
+
+Large language models were used as research and drafting assistants during
+the A255885 workflow, including OpenAI Codex and external LLM-based review
+systems from the ChatGPT, Claude, GitHub Copilot, DeepSeek, Gemini, Grok,
+Kimi, Meta, Qwen, MiniMax, and Z.ai GLM families.  They are named at family
+level because exact model-version metadata were not consistently available in
+the local review artifacts.
+
+\textbf{Mathematical analysis.}
+AI systems assisted with literature
+triage, checking proof structure, exploring finite certified data, and
+drafting exposition.  Every mathematical claim retained here was checked
+against the cited sources, proved in the manuscript, or verified from the
+frozen exact data by the author.
+
+\textbf{Algorithm and code.}
+AI systems assisted in generating and iteratively revising both the
+production and validation source code, as well as in identifying possible
+correctness, portability, overflow, persistence, and validation issues.  The
+production and validator programs
+are separate codebases, but they share the broader AI-assisted mathematical
+framework and review environment; their independence is therefore
+implementation-level, not process-level.  The author selected and reconciled
+every change, specified the requirements, controlled every official run, and
+verified the frozen implementation and outputs.
+
+\textbf{Manuscript.}
+OpenAI Codex assisted with the initial English draft, consistency checks, and
+LaTeX review.  The author determined the claims, evidence boundaries,
+structure, and final wording.
+
+\textbf{Project workflow.}
+AI tools did not autonomously authorize or operate the official computational
+campaign.  Campaign execution, preservation of canonical artifacts, and the
+decision to report the results remained under the author's control.
+
+The scientific conclusions rely on the primary sources and frozen artifacts,
+including the result table, b-files, witness certificate, and independent
+validator, not on conversational assertions.  The author assumes full
+scientific responsibility for all mathematical statements, the
+implementation, numerical results, validation boundaries, and conclusions,
+as well as for the citations and text of this article.
+
+\clearpage
+\begin{thebibliography}{9}
+
+\bibitem{agoh-dilcher-skula}
+T.~Agoh, K.~Dilcher, and L.~Skula,
+Fermat quotients for composite moduli,
+\emph{Journal of Number Theory} \textbf{66} (1997), 29--50.
+\url{https://doi.org/10.1006/jnth.1997.2162}.
+
+\bibitem{cohen}
+H.~Cohen,
+\emph{A Course in Computational Algebraic Number Theory},
+Graduate Texts in Mathematics 138, Springer-Verlag, Berlin, 1993.
+\url{https://doi.org/10.1007/978-3-662-02945-9}.
+
+\bibitem{oeis-a255885}
+OEIS Foundation Inc.,
+The On-Line Encyclopedia of Integer Sequences, A255885,
+\emph{Smallest base $b$ such that there exist exactly $n$ Wieferich
+pseudoprimes (composites $c$ satisfying
+$b^{c-1}\equiv1\pmod{c^2}$) less than $b$},
+created by Felix Fr\"ohlich on March 9, 2015; $a(20)$ was contributed by
+Chai Wah Wu on May 18, 2022, and $a(21)$ through $a(24)$ on May 19, 2022.
+\url{https://oeis.org/A255885} (accessed September 3, 2026).
+
+\bibitem{oeis-a273785}
+OEIS Foundation Inc.,
+The On-Line Encyclopedia of Integer Sequences, A273785,
+\emph{Numbers $n$ where a composite $c<n$ exists such that
+$n^{c-1}\equiv1\pmod{c^2}$, i.e., such that $c$ is a ``base-$n$ Wieferich
+pseudoprime''}, created by Felix Fr\"ohlich; program contribution by Robert
+Israel implementing the inverse root marking method.  The entry was created
+on May 30, 2016, and Israel's program was contributed on April 20, 2017.
+\url{https://oeis.org/A273785} (accessed September 3, 2026).
+
+\bibitem{corti-package}
+C.~Corti,
+\emph{Computational artifacts for OEIS A255885}, planned project release,
+2026.
+\url{https://github.com/carcorti/A255885}; archival record planned at
+\url{https://doi.org/10.5281/zenodo.xxxxxxxx} (placeholder; replace with the
+resolved DOI before public release).
+
+\end{thebibliography}
+
+\end{document}

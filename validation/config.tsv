@@ -1,0 +1,11 @@
+A255885-CONFIG	1
+program_id	A255885
+B	2000000000
+index_cap	254
+counter_saturation	255
+segment_span	1999999996
+test_noncampaign	0
+source_sha256	eab592a8c6a3caf75fa868724765800347516b23b65cc843c6d0a82c205aa1a5
+makefile_sha256	5449bb5683720e9992cb89b73da410b2f9c908beea2c0d35d888393ceff0b095
+binary_sha256	974b9efdb4d86477f768973204322117e55d39152117bd91ceea1324de584210
+artifact_count	7
