@@ -8,6 +8,7 @@ from pathlib import Path
 
 
 EXPECTED = {
+    ".gitattributes",
     ".gitignore",
     "CITATION.cff",
     "LICENSE",
@@ -73,16 +74,16 @@ def read_checksums(path: Path) -> dict[str, str]:
 
 def main() -> int:
     root = Path(__file__).resolve().parent.parent
-    if root.name != "GitHub":
-        fail("package root basename mismatch")
     actual = {
         path.relative_to(root).as_posix()
         for path in root.rglob("*")
-        if path.is_file()
+        if path.is_file() and path.relative_to(root).parts[0] != ".git"
     }
     if actual != EXPECTED:
         fail(f"public inventory mismatch: missing={sorted(EXPECTED-actual)} extra={sorted(actual-EXPECTED)}")
     for path in root.rglob("*"):
+        if path.relative_to(root).parts[0] == ".git":
+            continue
         if path.is_symlink():
             fail(f"symlink not permitted: {path.relative_to(root)}")
         if path.is_file() and len(path.name) > 25:
@@ -109,7 +110,7 @@ def main() -> int:
         "type: software",
         'repository-code: "https://github.com/carcorti/A255885"',
         'doi: "10.5281/zenodo.22519077"',
-        'version: "v1.0.1"',
+        'version: "v1.0.2"',
         "license: MIT",
     )
     if any(value not in cff for value in required_cff):

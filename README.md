@@ -5,7 +5,7 @@ integer base `b >= 2`, let `C(b)` be the number of composite integers `c` with
 `2 <= c < b` and `b^(c-1) == 1 (mod c^2)`. The sequence term `a(n)` is the
 least base for which `C(b) = n`.
 
-This definitive package is release `v1.0.1`. Its public repository is
+This definitive package is release `v1.0.2`. Its public repository is
 `https://github.com/carcorti/A255885`, and its persistent archive DOI is
 `https://doi.org/10.5281/zenodo.22519077`.
 
@@ -27,6 +27,7 @@ construction and counter representations.
 ## Contents
 
 ```text
+.gitattributes                   repository text-normalization policy
 .gitignore                       generated and local-only exclusions
 README.md                        package overview and commands
 CITATION.cff                     release and citation metadata
@@ -85,7 +86,13 @@ statements and the mathematical algorithm are unchanged. The byte-exact run
 configuration and manifest retain the historical source hash for provenance.
 The `v6` wording retained in the frozen source and bounded validator denotes
 their internal review lineage; it is distinct from the repository release
-version `v1.0.1` recorded in `CITATION.cff`.
+version `v1.0.2` recorded in `CITATION.cff`.
+
+Release `v1.0.2` corrects the package auditor so that the documented public
+validation command works both in a normal Git clone and in an extracted
+GitHub/Zenodo source archive. The scientific source, build recipe, results,
+certificate, data files, manuscript source, and PDF are byte-identical to
+release `v1.0.1`.
 
 ## Quick public validation
 
@@ -162,7 +169,7 @@ indices. Machine-readable elapsed times retain their original precision.
 ## Paper and citation
 
 The self-contained manuscript source is `paper/A255885.tex`; its compiled
-counterpart is `paper/A255885.pdf`. `CITATION.cff` records release `v1.0.1`,
+counterpart is `paper/A255885.pdf`. `CITATION.cff` records release `v1.0.2`,
 the public repository, and the persistent Zenodo concept DOI
 `10.5281/zenodo.22519077`.
 

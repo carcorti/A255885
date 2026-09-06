@@ -1,7 +1,14 @@
 # Validation summary
 
 Date: 2026-09-06  
-Scope: compact final GitHub/Zenodo release package `v1.0.1` for OEIS A255885
+Scope: compact corrective GitHub/Zenodo release package `v1.0.2` for OEIS A255885
+
+Release `v1.0.2` changes only packaging validation and release metadata. It
+removes an erroneous dependency on the checkout-directory basename, excludes
+the root `.git/` metadata directory from the public-file inventory, and adds
+the tracked `.gitattributes` file to that inventory. The scientific source,
+build recipe, results, certificate, data files, manuscript source, and PDF are
+byte-identical to release `v1.0.1`.
 
 ## Frozen identities
 
@@ -67,6 +74,10 @@ The following checks passed on the final package assembled on 2026-09-06:
   content, or split table.
 - manuscript policy audit: 14/14 gates passed on the exact copied TeX source.
 - `cffconvert --validate -i CITATION.cff`: CFF 1.2.0 schema validation passed.
+- distribution-context matrix: the package audit passed from an arbitrarily
+  named directory and from a clone-like tree containing root `.git/` metadata;
+  the complete quick-validation command passed after ZIP creation and
+  extraction under a GitHub-style source-archive directory name.
 - final-empty-record audit: both public data files end in exactly `LF LF`.
 - AddressSanitizer plus UndefinedBehaviorSanitizer: the complete bounded
   production regression and the independent C self-test through `B=2024`
@@ -110,6 +121,6 @@ decision: GO for publication
 ```
 
 The final metadata consistently records the public repository, the persistent
-Zenodo concept DOI `10.5281/zenodo.22519077`, and release `v1.0.1`. The
+Zenodo concept DOI `10.5281/zenodo.22519077`, and release `v1.0.2`. The
 scientific code, results, b-file, sparse data, run metadata, and certificate
 remain unchanged from the validated package.
